@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>授权文件生成器 - 手机版</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --gray: #6b7280;
+            --light-gray: #f3f4f6;
+            --white: #ffffff;
+            --black: #111827;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: var(--black);
+            line-height: 1.5;
+            min-height: 100vh;
+            padding: 16px;
+            touch-action: manipulation;
+        }
+        .container {
+            max-width: 100%;
+            background: var(--white);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+        .server-info {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+        .server-info h3 {
+            font-size: 1rem;
+            margin-bottom: 8px;
+            color: var(--black);
+        }
+        .server-info input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            margin-top: 8px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: var(--black);
+        }
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            background: var(--white);
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+        .btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+            touch-action: manipulation;
+        }
+        .btn:active {
+            transform: translateY(1px);
+        }
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+        .btn-primary:active {
+            background: var(--primary-dark);
+        }
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--black);
+            border: 1px solid #e5e7eb;
+        }
+        .btn-success {
+            background: var(--success);
+            color: var(--white);
+        }
+        .btn-warning {
+            background: var(--warning);
+            color: var(--white);
+        }
+        .tabs {
+            display: flex;
+            background: var(--light-gray);
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .tab {
+            flex: 1;
+            min-width: 120px;
+            padding: 12px;
+            text-align: center;
+            background: none;
+            border: none;
+            font-weight: 600;
+            color: var(--gray);
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .tab.active {
+            background: var(--white);
+            color: var(--primary);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        .result-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            border: 2px solid var(--primary);
+            display: none;
+        }
+        .license-preview {
+            background: #1f2937;
+            color: #d1d5db;
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            line-height: 1.4;
+            max-height: 300px;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+        .file-list {
+            margin-top: 16px;
+        }
+        .file-item {
+            background: var(--white);
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .file-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .file-name {
+            font-weight: 600;
+            font-size: 0.875rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .file-meta {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 2px;
+        }
+        .file-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: slideIn 0.3s ease;
+        }
+        .message-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        .message-error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        .message-info {
+            background: #dbeafe;
+            color: #1e40af;
+            border: 1px solid #bfdbfe;
+        }
+        .message-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 1px solid #fde68a;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--white);
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .actions-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+        }
+        .actions-row .btn {
+            flex: 1;
+        }
+        .ip-help {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .quick-ip {
+            margin-top: 8px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .ip-btn {
+            padding: 6px 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            cursor: pointer;
+        }
+        @media (max-width: 640px) {
+            body {
+                padding: 12px;
+            }
+            .container {
+                padding: 20px;
+            }
+            .actions-row {
+                flex-direction: column;
+            }
+        }
+        .license-preview::-webkit-scrollbar {
+            width: 4px;
+        }
+        .license-preview::-webkit-scrollbar-track {
+            background: #374151;
+        }
+        .license-preview::-webkit-scrollbar-thumb {
+            background: #6b7280;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 授权文件生成器</h1>
+            <p>手机版 - 已验证有效的签名方案</p>
+        </div>
+        <div class="server-info">
+            <h3>📡 服务器设置</h3>
+            <input type="text" id="serverUrl" placeholder="http://192.168.x.x:5000" value="">
+            <div class="ip-help">
+                <span>💡 确保手机和电脑在同一WiFi，输入电脑IP地址</span>
+            </div>
+            <div class="quick-ip">
+                <button class="ip-btn" onclick="setServerUrl('http://192.168.1.193:5000')">本地</button>
+                <button class="ip-btn" onclick="setServerUrl('http://192.168.1.220:5000')">常用IP1</button>
+                <button class="ip-btn" onclick="setServerUrl('http://192.168.1.001:5000')">常用IP2</button>
+            </div>
+        </div>
+        <div class="tabs">
+            <button class="tab active" data-tab="single">单机发证</button>
+            <button class="tab" data-tab="batch">批量发证</button>
+            <button class="tab" data-tab="files">文件管理</button>
+            <button class="tab" data-tab="logs">授权日志</button>
+        </div>
+        <div class="form-group">
+            <label class="form-label">📅 授权天数</label>
+            <input type="number" class="form-input" id="days" value="365" min="1">
+        </div>
+        <div class="form-group">
+            <label class="form-label">📝 订单编号（可选）</label>
+            <input type="text" class="form-input" id="orderId" placeholder="仅用于记录">
+        </div>
+        <div class="form-group">
+            <label class="form-label">💡 备注（可选）</label>
+            <input type="text" class="form-input" id="remark" placeholder="仅用于记录">
+        </div>
+        <!-- 单机发证 -->
+        <div id="single" class="tab-content active">
+            <div class="form-group">
+                <label class="form-label">🔢 机器码</label>
+                <input type="text" class="form-input" id="fingerprint" 
+                       placeholder="输入64位机器码" 
+                       pattern="[a-fA-F0-9]{64}"
+                       title="请输入64位十六进制机器码">
+            </div>
+            <button class="btn btn-primary" id="generateSingleBtn">
+                🚀 生成授权文件
+            </button>
+        </div>
+        <!-- 批量发证 -->
+        <div id="batch" class="tab-content">
+            <div class="form-group">
+                <label class="form-label">📋 机器码列表（每行一个）</label>
+                <textarea class="form-input form-textarea" id="fingerprints" 
+                          placeholder="每行输入一个机器码&#10;例如：&#10;1140b2e368f661d7a01adedda63b7c90b634917639501cd514f689fa56e35f6f"></textarea>
+            </div>
+            <button class="btn btn-primary" id="generateBatchBtn">
+                🚀 批量生成
+            </button>
+        </div>
+        <!-- 文件管理 -->
+        <div id="files" class="tab-content">
+            <div class="file-list" id="fileList"></div>
+            <button class="btn btn-secondary" id="refreshFilesBtn">🔄 刷新列表</button>
+        </div>
+        <!-- 授权日志 -->
+        <div id="logs" class="tab-content">
+            <button class="btn btn-primary" id="loadLogsBtn">🔄 加载服务器日志</button>
+            <button class="btn btn-success" id="downloadLogsBtn" style="margin-top:10px;">📥 下载日志 CSV</button>
+            <div id="logsList" style="margin-top:16px; max-height:400px; overflow-y:auto;"></div>
+        </div>
+        <!-- 结果展示 -->
+        <div class="result-card" id="resultCard">
+            <h3 style="margin-bottom: 16px; font-size: 1.25rem;">📄 授权文件预览</h3>
+            <div class="license-preview" id="licensePreview"></div>
+            <div class="actions-row">
+                <button class="btn btn-success" id="downloadBtn">📥 下载文件</button>
+                <button class="btn btn-secondary" id="copyBtn">📋 复制内容</button>
+                <button class="btn btn-warning" id="closeBtn">✕ 关闭</button>
+            </div>
+        </div>
+        <div id="messageArea"></div>
+    </div>
+    <script>
+        let currentLicense = null;
+        let currentFileName = '';
+
+        // 全局函数：供 HTML onclick 使用
+        window.setServerUrl = function(url) {
+            document.getElementById('serverUrl').value = url;
+            showMessage(`已设置服务器地址: ${url}`, 'info');
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            setDefaultServerUrl();
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+                    document.getElementById(tabId).classList.add('active');
+                    if (tabId === 'files') refreshFileList();
+                    if (tabId === 'logs') { /* 可手动加载 */ }
+                });
+            });
+            document.getElementById('generateSingleBtn').addEventListener('click', generateSingle);
+            document.getElementById('generateBatchBtn').addEventListener('click', generateBatch);
+            document.getElementById('refreshFilesBtn').addEventListener('click', refreshFileList);
+            document.getElementById('downloadBtn').addEventListener('click', downloadLicense);
+            document.getElementById('copyBtn').addEventListener('click', copyToClipboard);
+            document.getElementById('closeBtn').addEventListener('click', hideResult);
+            document.getElementById('loadLogsBtn').addEventListener('click', loadLogs);
+            document.getElementById('downloadLogsBtn').addEventListener('click', downloadLogs);
+            document.getElementById('fingerprint').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') generateSingle();
+            });
+            refreshFileList();
+        });
+
+        function setDefaultServerUrl() {
+            document.getElementById('serverUrl').value = 'http://localhost:5000';
+        }
+
+        function showMessage(message, type = 'info') {
+            const messageArea = document.getElementById('messageArea');
+            while (messageArea.firstChild) messageArea.removeChild(messageArea.firstChild);
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message message-${type}`;
+            let icon = '💡';
+            if (type === 'success') icon = '✅';
+            if (type === 'error') icon = '❌';
+            if (type === 'warning') icon = '⚠️';
+            messageDiv.innerHTML = `<span style="font-size: 1.2rem;">${icon}</span><span>${message}</span>`;
+            messageArea.appendChild(messageDiv);
+            const duration = type === 'error' ? 5000 : 3000;
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => messageDiv.remove(), 300);
+            }, duration);
+        }
+
+        function getServerUrl() {
+            let url = document.getElementById('serverUrl').value.trim();
+            if (!url) {
+                showMessage('请先设置服务器地址', 'error');
+                return null;
+            }
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'http://' + url;
+            }
+            return url;
+        }
+
+        // 修复 fetch 超时问题（使用 AbortController）
+        async function checkServerConnection() {
+            const serverUrl = getServerUrl();
+            if (!serverUrl) return false;
+            try {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000);
+                const response = await fetch(`${serverUrl}/health`, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    signal: controller.signal
+                });
+                clearTimeout(timeoutId);
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.status === 'ok';
+                }
+                return false;
+            } catch (error) {
+                console.error('服务器连接失败:', error);
+                return false;
+            }
+        }
+
+        async function generateSingle() {
+            const fingerprint = document.getElementById('fingerprint').value.trim();
+            const days = parseInt(document.getElementById('days').value) || 365;
+            const orderId = document.getElementById('orderId').value.trim();
+            const remark = document.getElementById('remark').value.trim();
+            const serverUrl = getServerUrl();
+            if (!serverUrl) return;
+            if (!fingerprint) return showMessage('请输入机器码', 'error');
+            if (!/^[a-fA-F0-9]{64}$/.test(fingerprint)) return showMessage('机器码必须是64位十六进制字符', 'error');
+
+            const button = document.getElementById('generateSingleBtn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="loading"></span> 连接服务器...';
+            button.disabled = true;
+
+            try {
+                const isConnected = await checkServerConnection();
+                if (!isConnected) {
+                    showMessage('无法连接到签名服务器，请检查：1. 服务器地址是否正确；2. 电脑防火墙是否允许5000端口；3. 是否运行了python server.py', 'error');
+                    return;
+                }
+                button.innerHTML = '<span class="loading"></span> 正在生成签名...';
+                const response = await fetch(`${serverUrl}/sign`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fingerprint, days, orderId }) // ✅ 传 orderId
+                });
+                if (!response.ok) throw new Error(`服务器响应错误: ${response.status}`);
+                const result = await response.json();
+                if (result.success) {
+                    const licenseData = { f: fingerprint, e: result.expiration, sig: result.signature };
+                    currentLicense = licenseData;
+                    currentFileName = `${fingerprint}.license`;
+                    saveToLocalStorage(fingerprint, licenseData, orderId, remark);
+                    showResult(licenseData);
+                    showMessage('✅ 授权文件生成成功！', 'success');
+                } else {
+                    throw new Error(result.error || '签名失败');
+                }
+            } catch (error) {
+                console.error('生成失败:', error);
+                showMessage('❌ 生成失败: ' + error.message, 'error');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        async function generateBatch() {
+            const fingerprintsText = document.getElementById('fingerprints').value.trim();
+            const days = parseInt(document.getElementById('days').value) || 365;
+            const orderId = document.getElementById('orderId').value.trim();
+            const remark = document.getElementById('remark').value.trim();
+            const serverUrl = getServerUrl();
+            if (!serverUrl) return;
+            if (!fingerprintsText) return showMessage('请输入机器码列表', 'error');
+
+            // ✅ 修复：使用 '\n' 而不是字面换行符
+            const fingerprints = fingerprintsText.split(/\r?\n/).map(f => f.trim()).filter(f => f && /^[a-fA-F0-9]{64}$/.test(f));
+
+            if (fingerprints.length === 0) return showMessage('没有有效的机器码（必须是64位十六进制）', 'error');
+
+            const button = document.getElementById('generateBatchBtn');
+            const originalText = button.innerHTML;
+            button.innerHTML = '<span class="loading"></span> 连接服务器...';
+            button.disabled = true;
+
+            try {
+                const isConnected = await checkServerConnection();
+                if (!isConnected) {
+                    showMessage('无法连接到签名服务器，请检查服务器地址和网络', 'error');
+                    return;
+                }
+                button.innerHTML = `<span class="loading"></span> 正在批量生成 ${fingerprints.length} 个文件...`;
+                const response = await fetch(`${serverUrl}/batch_sign`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fingerprints, days, orderId }) // ✅ 传 orderId
+                });
+                if (!response.ok) throw new Error(`服务器响应错误: ${response.status}`);
+                const result = await response.json();
+                if (result.success) {
+                    result.results.forEach(item => {
+                        const licenseData = { f: item.fingerprint, e: item.expiration, sig: item.signature };
+                        saveToLocalStorage(item.fingerprint, licenseData, orderId, remark);
+                    });
+                    showMessage(`✅ 成功生成 ${result.succeeded} 个授权文件`, 'success');
+                    refreshFileList();
+                } else {
+                    throw new Error(result.error || '批量签名失败');
+                }
+            } catch (error) {
+                console.error('批量生成失败:', error);
+                showMessage('❌ 批量生成失败: ' + error.message, 'error');
+            } finally {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }
+        }
+
+        function saveToLocalStorage(fingerprint, licenseData, orderId = '', remark = '') {
+            try {
+                let files = JSON.parse(localStorage.getItem('license_files') || '{}');
+                files[fingerprint] = { licenseData, fileName: `${fingerprint}.license`, created: new Date().toISOString(), orderId, remark, size: JSON.stringify(licenseData).length };
+                localStorage.setItem('license_files', JSON.stringify(files));
+                return true;
+            } catch (error) {
+                return false;
+            }
+        }
+
+        // ✅ 新增：显示拼接值
+        function showResult(licenseData) {
+            const preview = document.getElementById('licensePreview');
+            const jsonText = JSON.stringify(licenseData, null, 2);
+            const concatenated = licenseData.f + licenseData.e.toString() + licenseData.sig;
+            preview.innerHTML = `
+                <div style="margin-bottom:12px; font-weight:bold; color:#4f46e5;">📄 原始授权内容（.license 文件）</div>
+                <pre style="background:#1f2937; padding:12px; border-radius:6px; color:#d1d5db;">${jsonText}</pre>
+                <div style="margin-top:16px; margin-bottom:8px; font-weight:bold; color:#10b981;">🔗 拼接值（f + e + sig）</div>
+                <div id="concatenatedValue" style="word-break:break-all; background:#374151; color:#e5e6f0; padding:10px; border-radius:6px; font-family:monospace; font-size:0.85rem;">
+                    ${concatenated}
+                </div>
+            `;
+            document.getElementById('resultCard').style.display = 'block';
+            document.getElementById('resultCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function hideResult() {
+            document.getElementById('resultCard').style.display = 'none';
+            currentLicense = null;
+        }
+
+        function downloadLicense() {
+            if (!currentLicense) return showMessage('没有可下载的文件', 'error');
+            try {
+                const blob = new Blob([JSON.stringify(currentLicense, null, 2)], { type: 'application/json' });
+                if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                    const reader = new FileReader();
+                    reader.onload = e => window.location.href = e.target.result;
+                    reader.readAsDataURL(blob);
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = currentFileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }
+                showMessage('✅ 文件已开始下载', 'success');
+            } catch (error) {
+                showMessage('❌ 下载失败: ' + error.message, 'error');
+            }
+        }
+
+        async function copyToClipboard() {
+            const concatDiv = document.getElementById('concatenatedValue');
+            if (!concatDiv) {
+                showMessage('拼接值尚未生成', 'error');
+                return;
+            }
+            const textToCopy = concatDiv.textContent.trim();
+            if (!textToCopy) {
+                showMessage('拼接值为空', 'error');
+                return;
+            }
+            try {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    await navigator.clipboard.writeText(textToCopy);
+                } else {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = textToCopy;
+                    textArea.style.position = 'fixed';
+                    textArea.style.opacity = '0';
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                }
+                showMessage('✅ 已复制拼接值到剪贴板', 'success');
+            } catch (error) {
+                console.error('复制失败:', error);
+                showMessage('❌ 复制失败: ' + error.message, 'error');
+            }
+        }
+
+        function refreshFileList() {
+            try {
+                const fileList = document.getElementById('fileList');
+                let raw = localStorage.getItem('license_files');
+                let files = {};
+        
+                // 安全解析 JSON
+                if (raw && typeof raw === 'string') {
+                    try {
+                        files = JSON.parse(raw);
+                        // 确保结果是对象
+                        if (files === null || typeof files !== 'object') {
+                            files = {};
+                        }
+                    } catch (parseError) {
+                        console.warn('localStorage 数据损坏，已重置:', parseError);
+                        localStorage.removeItem('license_files');
+                        files = {};
+                        showMessage('⚠️ 本地文件列表数据异常，已自动重置', 'warning');
+                    }
+                }
+        
+                if (Object.keys(files).length === 0) {
+                    fileList.innerHTML = `<div style="text-align: center; padding: 40px 20px; color: #6b7280;">📂 暂无授权文件</div>`;
+                    return;
+                }
+        
+                let html = '';
+                const fileEntries = Object.entries(files).sort((a, b) => new Date(b[1].created) - new Date(a[1].created));
+                fileEntries.forEach(([fingerprint, fileInfo]) => {
+                    // 防御性检查：确保 fileInfo 结构完整
+                    if (!fileInfo || !fileInfo.licenseData) return;
+                    const created = new Date(fileInfo.created).toLocaleString();
+                    const expires = new Date(fileInfo.licenseData.e * 1000).toLocaleDateString();
+                    const sizeKB = (fileInfo.size / 1024).toFixed(2);
+                    html += `
+                        <div class="file-item">
+                            <div class="file-info">
+                                <div class="file-name">${fileInfo.fileName || fingerprint}.license</div>
+                                <div class="file-meta">
+                                    创建: ${created} | 大小: ${sizeKB} KB<br>
+                                    过期: ${expires}
+                                    ${fileInfo.orderId ? ` | 订单: ${fileInfo.orderId}` : ''}
+                                    ${fileInfo.remark ? ` | 备注: ${fileInfo.remark}` : ''}
+                                </div>
+                            </div>
+                            <div class="file-actions">
+                                <button class="action-btn" style="background: #10b981; color: white;" onclick="downloadFile('${fingerprint}')">下载</button>
+                                <button class="action-btn" style="background: #ef4444; color: white;" onclick="deleteFile('${fingerprint}')">删除</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                fileList.innerHTML = html;
+            } catch (error) {
+                console.error('刷新文件列表失败:', error);
+                showMessage('❌ 加载文件列表失败', 'error');
+            }
+        }
+
+        window.downloadFile = function(fingerprint) {
+            try {
+                const files = JSON.parse(localStorage.getItem('license_files') || '{}');
+                const fileInfo = files[fingerprint];
+                if (!fileInfo) return showMessage('文件不存在', 'error');
+                const blob = new Blob([JSON.stringify(fileInfo.licenseData, null, 2)], { type: 'application/json' });
+                if (navigator.userAgent.match(/iPhone|iPad|iPod/i)) {
+                    const reader = new FileReader();
+                    reader.onload = e => window.location.href = e.target.result;
+                    reader.readAsDataURL(blob);
+                } else {
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = fileInfo.fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                }
+                showMessage('✅ 文件已开始下载', 'success');
+            } catch (error) {
+                showMessage('❌ 下载失败: ' + error.message, 'error');
+            }
+        };
+
+        window.deleteFile = function(fingerprint) {
+            if (confirm('确定要删除这个授权文件吗？')) {
+                try {
+                    const files = JSON.parse(localStorage.getItem('license_files') || '{}');
+                    delete files[fingerprint];
+                    localStorage.setItem('license_files', JSON.stringify(files));
+                    refreshFileList();
+                    showMessage('✅ 文件已删除', 'success');
+                } catch (error) {
+                    showMessage('❌ 删除失败: ' + error.message, 'error');
+                }
+            }
+        };
+
+        // --- 日志功能 ---
+        async function loadLogs() {
+            const serverUrl = getServerUrl();
+            if (!serverUrl) return;
+            const btn = document.getElementById('loadLogsBtn');
+            const original = btn.innerHTML;
+            btn.innerHTML = '<span class="loading"></span> 加载中...';
+            btn.disabled = true;
+            try {
+                const res = await fetch(`${serverUrl}/logs`);
+                const data = await res.json();
+                if (data.success) {
+                    displayLogs(data.logs);
+                } else {
+                    throw new Error(data.error || '加载失败');
+                }
+            } catch (err) {
+                console.error('加载日志失败:', err);
+                showMessage('❌ 加载日志失败: ' + (err.message || '未知错误'), 'error');
+            } finally {
+                btn.innerHTML = original;
+                btn.disabled = false;
+            }
+        }
+
+        function displayLogs(logs) {
+            const container = document.getElementById('logsList');
+            if (logs.length === 0) {
+                container.innerHTML = '<div class="message message-info">暂无日志记录</div>';
+                return;
+            }
+            let html = `
+                <table style="width:100%; border-collapse: collapse; font-size: 0.85rem;">
+                    <thead>
+                        <tr style="background:#f3f4f6;">
+                            <th style="padding:8px; border:1px solid #ddd; text-align:left;">订单号</th>
+                            <th style="padding:8px; border:1px solid #ddd; text-align:left;">机器码</th>
+                            <th style="padding:8px; border:1px solid #ddd; text-align:left;">签发时间</th>
+                            <th style="padding:8px; border:1px solid #ddd; text-align:left;">到期时间</th>
+							<th style="padding:8px; border:1px solid #ddd; text-align:left;">授权文件内容</th>
+							<th style="padding:8px; border:1px solid #ddd; text-align:left;">f+e+sig拼接值</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            logs.forEach(row => {
+                html += `
+                    <tr>
+                        <td style="padding:6px; border:1px solid #eee;">${row['订单号'] || '—'}</td>
+                        <td style="padding:6px; border:1px solid #eee; font-family:monospace; font-size:0.8rem;">${row['机器码']}</td>
+                        <td style="padding:6px; border:1px solid #eee;">${row['授权签发日期']}</td>
+                        <td style="padding:6px; border:1px solid #eee;">${row['授权到期日期']}</td>
+						<td style="padding:6px; border:1px solid #eee; font-family:monospace; font-size:0.8rem;">${row['授权文件内容']}</td>
+						<td style="padding:6px; border:1px solid #eee; font-family:monospace; font-size:0.8rem;">${row['f+e+sig拼接值']}</td>
+                    </tr>
+                `;
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        function downloadLogs() {
+            const serverUrl = getServerUrl();
+            if (!serverUrl) return;
+            window.open(`${serverUrl}/download_logs`, '_blank');
+        }
+    </script>
+</body>
+</html>
